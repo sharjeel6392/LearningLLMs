@@ -1,7 +1,7 @@
 import re
 from read_the_verdict import vocab
 
-class SimpleTokenizerV1:
+class SimpleTokenizerV2:
     def __init__(self, vocab):
         self.str_to_int = vocab
         self.int_to_str = {i:s for s, i in vocab.items()}
@@ -9,6 +9,8 @@ class SimpleTokenizerV1:
     def encode(self, text):
         preprocessed = re.split(r'([,.?_!"()\']|--|\s)', text)
         preprocessed = [ item.strip() for item in preprocessed if item.strip() ]
+
+        preprocessed = [item if item in self.str_to_int else "<|unk|>" for item in preprocessed]
 
         ids = [self.str_to_int[s] for s in preprocessed]
         return ids
@@ -20,9 +22,10 @@ class SimpleTokenizerV1:
     
 
 def main():
-    tokenizer = SimpleTokenizerV1(vocab)
-    text = """"It's the last he painted, you know," 
-       Mrs. Gisburn said with pardonable pride."""
+    tokenizer = SimpleTokenizerV2(vocab)
+    text1 = "Hello, do you like tea?"
+    text2 = "In the sunlit terraces of the palace"
+    text = " <|endoftext|> ".join((text1, text2))
     ids = tokenizer.encode(text)
     print(ids)
 
