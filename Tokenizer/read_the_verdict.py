@@ -3,7 +3,7 @@ import re
 
 # read 'the-verdict.txt
 
-with open("./Tokenization/the-verdict.txt", "r", encoding="utf-8") as f:
+with open("./Tokenizer/the_verdict.txt", "r", encoding="utf-8") as f:
     raw_text = f.read()
 
 
@@ -13,7 +13,16 @@ preprocessed = [item.strip() for item in preprocessed if item.strip()]
 
 
 # convert tokens into token IDs
-all_words = sorted(set(preprocessed)) # unique tokens
-vocab_size = len(all_words)
+# adding special context tokens
+# - <|unk|> token if the tokenizer encounters a word that is not part of the vocabulary
+# - <|endoftext|> token to flag that the text sources that are concatenated for training are unrelated.
+all_tokens = sorted(list(set(preprocessed))) # unique tokens
+all_tokens.extend(["<|endoftext|>", "<|unk|>"])
+vocab_size = len(all_tokens)
 
-vocab = {token:integer for integer, token in enumerate(all_words)}
+vocab = {token:integer for integer, token in enumerate(all_tokens)}
+
+# some other types of special context tokens include:
+# |BOS| (beginning of sequence)
+# |EOS| (end of sequence)
+# |PAD| (padding)
