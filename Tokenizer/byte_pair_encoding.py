@@ -14,7 +14,26 @@ text = tokenizer.decode(ids)
 
 print(text)
 
-smallerText = "someunknownPlace"
-testText = "some unknown Place"
-print(tokenizer.encode(smallerText))
-print(tokenizer.encode(testText))
+text = "Akwirw ier"
+ids = tokenizer.encode(text)
+
+for id in ids:
+    print(tokenizer.decode([id]))
+
+print(tokenizer.decode(ids))
+
+
+''' 
+
+BPE:
+It builds it vocabulary by iteratively merging:
+    frequent characters into subwords and
+    frequent subwords into words.
+
+For example:
+    BPE starts with adding all single characters to its vocabulary ("a", "b", etc.)
+    In the next stage, it merges character combinations that frequently occur together into subwords. For instance, "d" and "e" (define, depend, made, hidden, etc.)
+
+The merges are determined by a "FREQUENCY CUTOFF"
+
+'''
