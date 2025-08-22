@@ -2,6 +2,7 @@ import torch
 import pytest
 from src import SelfAttention_v1
 from src import SelfAttention_v2
+from src import MultiHeadAttentionWrapper
 
 def test_forward_output_shape():
     """Check that forward pass returns the right shape"""
@@ -92,3 +93,51 @@ def test_v2_from_book():
     sa_v1 = SelfAttention_v2(d_in, d_out)
     out = sa_v1.forward(x)
     torch.testing.assert_close(out, out_expected, atol = 1e-4, rtol = 0)
+
+def test_multi_head_wrapper():
+    torch.manual_seed(123)
+
+    inputs = torch.tensor(
+        [
+            [0.43, 0.15, 0.89], # Your     (x^1)
+            [0.55, 0.87, 0.66], # journey  (x^2)
+            [0.57, 0.85, 0.64], # starts   (x^3)
+            [0.22, 0.58, 0.33], # with     (x^4)
+            [0.77, 0.25, 0.10], # one      (x^5)
+            [0.05, 0.80, 0.55] # step      (x^6)
+        ]
+    )
+    expected_context_vec = torch.tensor(
+        [
+            [
+                [-0.0844,  0.0414,  0.0766,  0.0171],
+                [-0.2264, -0.0039,  0.2143,  0.1185],
+                [-0.4163, -0.0564,  0.3878,  0.2453],
+                [-0.5014, -0.1011,  0.4992,  0.3401],
+                [-0.7754, -0.1867,  0.7387,  0.4868],
+                [-1.1632, -0.3303,  1.1224,  0.8460]
+            ],
+
+            [
+                [-0.0844,  0.0414,  0.0766,  0.0171],
+                [-0.2264, -0.0039,  0.2143,  0.1185],
+                [-0.4163, -0.0564,  0.3878,  0.2453],
+                [-0.5014, -0.1011,  0.4992,  0.3401],
+                [-0.7754, -0.1867,  0.7387,  0.4868],
+                [-1.1632, -0.3303,  1.1224,  0.8460]
+            ]
+        ]
+    )
+    batch = torch.stack((inputs, inputs), dim = 0)
+    context_length = batch.shape[1]
+    d_in, d_out = inputs.shape[1], 2
+    multi_head = MultiHeadAttentionWrapper(
+        d_in= d_in,
+        d_out= d_out,
+        context_length= context_length,
+        dropout= 0.0,
+        num_heads= 2
+    )
+
+    context_vectors = multi_head(batch)
+    torch.testing.assert_close(context_vectors, expected_context_vec, atol = 1e-4, rtol = 0)

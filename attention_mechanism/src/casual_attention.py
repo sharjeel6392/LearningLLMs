@@ -95,6 +95,7 @@ def main():
     context_length = batch.shape[1]
     ca = CasualAttention(d_in, d_out, context_length=context_length, dropout=0.0)
     context_vecs = ca(batch)
+    print(f'Context vector: \n{context_vecs}')
 
 if __name__ == '__main__':
     main()
